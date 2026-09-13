@@ -1,0 +1,2060 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ReviewCuan — Mulai Cuan dari Kartu Google Review</title>
+
+  <style>
+    :root {
+      --blue: #4285f4;
+      --red: #ea4335;
+      --yellow: #fbbc05;
+      --green: #34a853;
+      --ink: #171717;
+      --muted: #6b7280;
+      --soft: #f7f8fa;
+      --line: #e5e7eb;
+      --white: #ffffff;
+      --radius: 24px;
+      --shadow: 0 18px 55px rgba(17, 24, 39, .08);
+      --container: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 78px;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(66, 133, 244, .35);
+      outline-offset: 4px;
+    }
+
+    .container {
+      width: min(calc(100% - 40px), var(--container));
+      margin-inline: auto;
+    }
+
+    .topbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 10;
+    }
+
+    .topbar-inner {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      position: relative;
+      background:
+        conic-gradient(
+          from 0deg,
+          var(--blue) 0 25%,
+          var(--red) 25% 50%,
+          var(--yellow) 50% 75%,
+          var(--green) 75% 100%
+        );
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .topbar-price {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .hero {
+      padding: 42px 0 70px;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 34px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #4b5563;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .eyebrow-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .dot-blue { background: var(--blue); }
+    .dot-red { background: var(--red); }
+    .dot-yellow { background: var(--yellow); }
+    .dot-green { background: var(--green); }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin-bottom: 20px;
+      font-size: clamp(42px, 7vw, 76px);
+      line-height: .98;
+      letter-spacing: -.055em;
+      font-weight: 850;
+    }
+
+    .gradient-text {
+      background: linear-gradient(
+        90deg,
+        var(--blue),
+        var(--blue) 34%,
+        var(--green) 54%,
+        var(--yellow) 72%,
+        var(--red)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      font-size: clamp(17px, 2vw, 21px);
+      color: #555b66;
+      margin-bottom: 28px;
+    }
+
+    .hero-copy strong {
+      color: var(--ink);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .btn {
+      min-height: 52px;
+      padding: 14px 21px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(66,133,244,.22);
+    }
+
+    .btn-primary:hover {
+      background: #2f75e5;
+    }
+
+    .btn-secondary {
+      border-color: var(--line);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover {
+      box-shadow: var(--shadow);
+    }
+
+    .micro-proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 18px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .micro-proof span::before {
+      content: "✓";
+      color: var(--green);
+      font-weight: 900;
+      margin-right: 6px;
+    }
+
+    .hero-visual {
+      position: relative;
+    }
+
+    .hero-image-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      box-shadow: 0 30px 80px rgba(17,24,39,.12);
+    }
+
+    .hero-image-wrap img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .hero-accent {
+      height: 5px;
+      width: 100%;
+      background: linear-gradient(
+        90deg,
+        var(--blue) 0 25%,
+        var(--red) 25% 50%,
+        var(--yellow) 50% 75%,
+        var(--green) 75% 100%
+      );
+    }
+
+    .price-chip {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      background: rgba(255,255,255,.96);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .price-chip small {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .price-chip strong {
+      font-size: 20px;
+      letter-spacing: -.03em;
+    }
+
+    .color-line {
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(
+        90deg,
+        var(--blue) 0 25%,
+        var(--red) 25% 50%,
+        var(--yellow) 50% 75%,
+        var(--green) 75% 100%
+      );
+    }
+
+    .trust-strip {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .trust-item {
+      padding: 22px 15px;
+      text-align: center;
+      border-right: 1px solid var(--line);
+    }
+
+    .trust-item:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .trust-item strong {
+      display: block;
+      font-size: 18px;
+      letter-spacing: -.025em;
+    }
+
+    .trust-item span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    section {
+      padding: 84px 0;
+    }
+
+    .section-label {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 850;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .section-heading {
+      max-width: 750px;
+      margin-bottom: 42px;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 14px;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: -.045em;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 17px;
+      max-width: 650px;
+    }
+
+    .problem {
+      background: var(--soft);
+    }
+
+    .problem-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .problem-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 26px;
+    }
+
+    .problem-number {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--blue);
+      margin-bottom: 15px;
+    }
+
+    .problem-card h3 {
+      font-size: 21px;
+      line-height: 1.2;
+      margin-bottom: 9px;
+    }
+
+    .problem-card p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .four-steps {
+      background: #fff;
+    }
+
+    .steps {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 25px;
+      background: #fff;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .step:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .step-number {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: #f0f5ff;
+      color: var(--blue);
+      font-weight: 900;
+      margin-bottom: 18px;
+    }
+
+    .step:nth-child(2) .step-number {
+      background: #fff2f0;
+      color: var(--red);
+    }
+
+    .step:nth-child(3) .step-number {
+      background: #fff9e7;
+      color: #a36d00;
+    }
+
+    .step:nth-child(4) .step-number {
+      background: #eefaf1;
+      color: var(--green);
+    }
+
+    .step h3 {
+      font-size: 20px;
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .step p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .economics {
+      background: #111318;
+      color: #fff;
+    }
+
+    .economics .section-label {
+      color: #9dbfff;
+    }
+
+    .economics .section-heading p {
+      color: #aeb4bf;
+    }
+
+    .money-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .money-card {
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .money-card span {
+      display: block;
+      color: #aeb4bf;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .money-card strong {
+      font-size: clamp(28px, 5vw, 42px);
+      letter-spacing: -.04em;
+    }
+
+    .money-card.highlight {
+      background: #fff;
+      color: var(--ink);
+      border-color: #fff;
+    }
+
+    .money-card.highlight span {
+      color: var(--muted);
+    }
+
+    .money-note {
+      margin-top: 18px;
+      color: #9ca3af;
+      font-size: 13px;
+      max-width: 680px;
+    }
+
+    .offer {
+      background: var(--soft);
+    }
+
+    .offer-header {
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 42px;
+    }
+
+    .offer-header h2 {
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.02;
+      letter-spacing: -.045em;
+      margin-bottom: 14px;
+    }
+
+    .offer-header p {
+      color: var(--muted);
+      margin-bottom: 0;
+    }
+
+    .pricing-grid {
+      display: grid;
+      gap: 18px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      position: relative;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 30px;
+      box-shadow: 0 12px 35px rgba(17,24,39,.04);
+    }
+
+    .pricing-card.founder {
+      border: 2px solid var(--blue);
+      box-shadow: 0 22px 55px rgba(66,133,244,.15);
+    }
+
+    .popular {
+      position: absolute;
+      top: -13px;
+      left: 24px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .package-name {
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+
+    .pricing-card h3 {
+      font-size: 28px;
+      letter-spacing: -.035em;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+      margin: 18px 0 20px;
+    }
+
+    .price strong {
+      font-size: clamp(36px, 6vw, 52px);
+      line-height: 1;
+      letter-spacing: -.055em;
+    }
+
+    .price span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .benefits {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 24px;
+    }
+
+    .benefits li {
+      position: relative;
+      padding-left: 25px;
+      margin: 11px 0;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .benefits li::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: 900;
+    }
+
+    .pricing-card .btn {
+      width: 100%;
+    }
+
+    .urgency {
+      margin: 0 auto 18px;
+      max-width: 900px;
+      padding: 15px 18px;
+      border: 1px solid #dbe5f8;
+      background: #f7faff;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .urgency-copy strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .urgency-copy span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-box {
+      min-width: 48px;
+      padding: 7px 8px;
+      border-radius: 10px;
+      background: #111318;
+      color: #fff;
+      text-align: center;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-box small {
+      display: block;
+      font-size: 8px;
+      color: #aeb4bf;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .strikethrough-note {
+      display: inline-block;
+      margin-top: 13px;
+      color: #9ca3af;
+      font-size: 12px;
+      text-decoration: line-through;
+      text-decoration-color: var(--red);
+      text-decoration-thickness: 2px;
+    }
+
+    .proof {
+      background: #fff;
+    }
+
+    .proof-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .testimonial {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: #fff;
+      padding: 22px;
+    }
+
+    .testimonial-label {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--red);
+      background: #fff4f3;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .chat {
+      background: #f7f8fa;
+      border-radius: 16px;
+      padding: 15px;
+    }
+
+    .chat-bubble {
+      max-width: 88%;
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      border-radius: 13px;
+      background: #fff;
+      border: 1px solid #edf0f3;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .chat-bubble:last-child {
+      margin-bottom: 0;
+      margin-left: auto;
+      background: #eaf3ff;
+      border-color: #dcecff;
+      color: #26384f;
+    }
+
+    .testimonial-footnote {
+      margin: 12px 0 0;
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .credibility {
+      background: var(--soft);
+    }
+
+    .credibility-box {
+      display: grid;
+      gap: 25px;
+      padding: 30px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+    }
+
+    .credibility-box h2 {
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+      margin-bottom: 12px;
+    }
+
+    .credibility-box p {
+      color: var(--muted);
+      max-width: 650px;
+      margin-bottom: 0;
+    }
+
+    .principles {
+      display: grid;
+      gap: 10px;
+    }
+
+    .principle {
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: #fafafa;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .faq {
+      background: #fff;
+    }
+
+    .faq-list {
+      max-width: 850px;
+      margin: 0 auto;
+      border-top: 1px solid var(--line);
+    }
+
+    details {
+      border-bottom: 1px solid var(--line);
+    }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 22px 42px 22px 0;
+      position: relative;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary::after {
+      content: "+";
+      position: absolute;
+      right: 4px;
+      top: 17px;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    details[open] summary::after {
+      content: "−";
+    }
+
+    .faq-answer {
+      padding: 0 40px 22px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .final-cta {
+      padding: 90px 0 110px;
+      background: #111318;
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta::before {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.06);
+      top: -260px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .final-cta h2 {
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto 16px;
+      font-size: clamp(38px, 6vw, 64px);
+      line-height: 1;
+      letter-spacing: -.05em;
+    }
+
+    .final-cta p {
+      position: relative;
+      max-width: 620px;
+      margin: 0 auto 28px;
+      color: #aeb4bf;
+      font-size: 16px;
+    }
+
+    .final-cta .btn {
+      position: relative;
+    }
+
+    .footer {
+      padding: 28px 0 100px;
+      background: #111318;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: #858c98;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .sticky-cta {
+      position: fixed;
+      z-index: 100;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      padding: 8px;
+      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(16px);
+      border-radius: 18px;
+      box-shadow: 0 15px 45px rgba(0,0,0,.16);
+    }
+
+    .sticky-cta-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sticky-price {
+      min-width: 82px;
+      padding-left: 6px;
+    }
+
+    .sticky-price small {
+      display: block;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 750;
+    }
+
+    .sticky-price strong {
+      display: block;
+      font-size: 16px;
+      letter-spacing: -.025em;
+    }
+
+    .sticky-cta .btn {
+      flex: 1;
+      min-height: 48px;
+      padding-inline: 12px;
+    }
+
+    .checkout-notice {
+      position: fixed;
+      z-index: 200;
+      inset: 0;
+      display: none;
+      place-items: center;
+      padding: 20px;
+      background: rgba(17,19,24,.58);
+      backdrop-filter: blur(7px);
+    }
+
+    .checkout-notice.show {
+      display: grid;
+    }
+
+    .notice-card {
+      width: min(100%, 440px);
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.22);
+    }
+
+    .notice-card h3 {
+      font-size: 25px;
+      letter-spacing: -.035em;
+      margin-bottom: 8px;
+    }
+
+    .notice-card p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 22px;
+    }
+
+    .notice-card .btn {
+      width: 100%;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (min-width: 700px) {
+      body {
+        padding-bottom: 82px;
+      }
+
+      .container {
+        width: min(calc(100% - 64px), var(--container));
+      }
+
+      .hero {
+        padding: 70px 0 90px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr .92fr;
+        gap: 55px;
+      }
+
+      .trust-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .trust-item,
+      .trust-item:nth-child(2n) {
+        border-right: 1px solid var(--line);
+      }
+
+      .trust-item:last-child {
+        border-right: 0;
+      }
+
+      .problem-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .steps {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .money-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr 1fr;
+        align-items: stretch;
+      }
+
+      .proof-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .credibility-box {
+        grid-template-columns: 1.2fr .8fr;
+        align-items: center;
+        padding: 48px;
+      }
+
+      .principles {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        width: min(calc(100% - 28px), var(--container));
+      }
+
+      .topbar-inner {
+        min-height: 58px;
+      }
+
+      .topbar-price {
+        font-size: 11px;
+      }
+
+      .hero {
+        padding-top: 30px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .price-chip {
+        right: 10px;
+        bottom: 10px;
+      }
+
+      section {
+        padding: 65px 0;
+      }
+
+      .sticky-price {
+        min-width: 72px;
+      }
+
+      .sticky-price strong {
+        font-size: 14px;
+      }
+
+      .sticky-cta .btn {
+        font-size: 12px;
+      }
+
+      .urgency {
+        align-items: flex-start;
+      }
+
+      .timer {
+        width: 100%;
+      }
+
+      .timer-box {
+        flex: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <a href="#top" class="brand" aria-label="ReviewCuan">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>ReviewCuan</span>
+      </a>
+
+      <div class="topbar-price">
+        Akses mulai Rp79.000
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+
+        <div class="hero-copy-column">
+          <div class="eyebrow">
+            <span class="eyebrow-dots" aria-hidden="true">
+              <span class="dot-blue"></span>
+              <span class="dot-red"></span>
+              <span class="dot-yellow"></span>
+              <span class="dot-green"></span>
+            </span>
+            ReviewCuan
+          </div>
+
+          <h1>
+            Modal kecil.
+            <span class="gradient-text">Jual solusi.</span>
+            Mulai cuan dari bisnis lokal.
+          </h1>
+
+          <p class="hero-copy">
+            Dapatkan akses eksklusif ke supplier kartu NFC/QR Google Review
+            <strong>Rp15.000/pcs</strong> + panduan A–Z lengkap dengan
+            script closing untuk mulai menawarkan solusi digital ke UMKM lokal.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn btn-primary" type="button" data-package="founder">
+              🚀 Amankan Akses ReviewCuan
+            </button>
+
+            <a class="btn btn-secondary" href="#cara-kerja">
+              Lihat cara kerjanya
+            </a>
+          </div>
+
+          <div class="micro-proof">
+            <span>Supplier Rp15.000/pcs</span>
+            <span>Panduan A–Z</span>
+            <span>Script closing</span>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-image-wrap">
+            <div class="hero-accent" aria-hidden="true"></div>
+
+            <img
+              src="https://cdn.scalev.com/uploads/1789286435/EeAkraI9U3m3WZFkN3DILQ/1789286435440-Card-1.webp"
+              alt="ReviewCuan — kartu NFC dan QR untuk Google Review"
+              loading="eager"
+              fetchpriority="high"
+            />
+
+            <div class="price-chip">
+              <small>Harga supplier</small>
+              <strong>Rp15.000/pcs</strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="color-line" aria-hidden="true"></div>
+
+    <!-- TRUST STRIP -->
+    <div class="trust-strip">
+      <div class="container trust-grid">
+        <div class="trust-item">
+          <strong>Rp15K</strong>
+          <span>Harga kartu dari supplier</span>
+        </div>
+
+        <div class="trust-item">
+          <strong>A–Z</strong>
+          <span>Panduan mulai sampai closing</span>
+        </div>
+
+        <div class="trust-item">
+          <strong>Rp50–165K</strong>
+          <span>Contoh harga jual per kartu</span>
+        </div>
+
+        <div class="trust-item">
+          <strong>UMKM</strong>
+          <span>Target bisnis lokal</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM -->
+    <section class="problem">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="section-label">Kenapa ReviewCuan?</span>
+
+          <h2>
+            Kamu nggak perlu bikin produk dari nol untuk mulai jualan.
+          </h2>
+
+          <p>
+            Ada bisnis lokal yang butuh lebih banyak review.
+            Ada produk yang bisa membantu mereka.
+            Yang kamu butuhkan adalah cara menawarkan dan closing-nya.
+          </p>
+        </div>
+
+        <div class="problem-grid">
+
+          <article class="problem-card">
+            <div class="problem-number">01 — PRODUK</div>
+            <h3>Nggak perlu produksi kartu sendiri.</h3>
+            <p>
+              Akses supplier kartu NFC/QR dengan harga Rp15.000/pcs sudah
+              menjadi bagian dari konsep bisnis ReviewCuan.
+            </p>
+          </article>
+
+          <article class="problem-card">
+            <div class="problem-number">02 — PASAR</div>
+            <h3>Targetnya bisnis yang gampang ditemukan.</h3>
+            <p>
+              Resto, salon, barbershop, kafe, dan bisnis lokal lainnya
+              membutuhkan kepercayaan dari calon pelanggan.
+            </p>
+          </article>
+
+          <article class="problem-card">
+            <div class="problem-number">03 — CLOSING</div>
+            <h3>Kamu tinggal belajar cara menawarkannya.</h3>
+            <p>
+              Panduan A–Z dilengkapi script obrolan untuk membantu kamu
+              membawa percakapan dari kenalan sampai penawaran.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 STEPS -->
+    <section class="four-steps" id="cara-kerja">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="section-label">Cara Kerja</span>
+
+          <h2>
+            Dari nol sampai closing pertama.
+            Cuma 4 langkah.
+          </h2>
+
+          <p>
+            Ini alur sederhana yang perlu kamu ulang-ulang sampai
+            kamu menemukan pola bisnis lokal yang cocok.
+          </p>
+        </div>
+
+        <div class="steps">
+
+          <article class="step">
+            <div class="step-number">01</div>
+            <h3>Pesan Kartu NFC-nya</h3>
+            <p>
+              Cuma Rp15.000/pcs, langsung dari supplier yang udah termasuk
+              di paket kamu.
+            </p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">02</div>
+            <h3>Samperin Bisnis Lokal</h3>
+            <p>
+              Resto, salon, barbershop, kafe — bisnis yang butuh review
+              Google biar makin dipercaya orang.
+            </p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">03</div>
+            <h3>Closing di Tempat</h3>
+            <p>
+              Pakai script obrolan dari panduan, Rp50–165 ribu per kartu
+              tergantung bisnisnya.
+            </p>
+          </article>
+
+          <article class="step">
+            <div class="step-number">04</div>
+            <h3>Ulangi &amp; Scale</h3>
+            <p>
+              Satu bisnis puas, kamu akan lebih gampang direkomendasiin
+              ke bisnis lain di sekitarnya. Reputasi kamu tumbuh dan
+              closing berikutnya jauh lebih cepat.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- UNIT ECONOMICS -->
+    <section class="economics">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="section-label">Hitungannya</span>
+
+          <h2>
+            Modal kecil bukan berarti
+            peluangnya kecil.
+          </h2>
+
+          <p>
+            Contoh sederhana berdasarkan angka yang digunakan dalam
+            konsep ReviewCuan.
+          </p>
+        </div>
+
+        <div class="money-grid">
+
+          <div class="money-card">
+            <span>Harga dari supplier</span>
+            <strong>Rp15K</strong>
+          </div>
+
+          <div class="money-card">
+            <span>Contoh harga jual</span>
+            <strong>Rp50–165K</strong>
+          </div>
+
+          <div class="money-card highlight">
+            <span>Selisih kotor per kartu</span>
+            <strong>Rp35–150K</strong>
+          </div>
+
+        </div>
+
+        <p class="money-note">
+          Angka selisih di atas adalah perhitungan sederhana dari harga
+          supplier Rp15.000 dan contoh harga jual Rp50.000–Rp165.000.
+          Harga jual aktual dapat berbeda sesuai bisnis, penawaran,
+          jumlah kartu, dan kesepakatan dengan pelanggan.
+        </p>
+
+      </div>
+    </section>
+
+    <!-- OFFER -->
+    <section class="offer" id="paket">
+      <div class="container">
+
+        <div class="offer-header">
+          <span class="section-label">Pilih Aksesmu</span>
+
+          <h2>
+            Kesempatan cuan modal kecil
+            ini tidak datang dua kali.
+          </h2>
+
+          <p>
+            Mulai dari paket yang paling sesuai dengan langkahmu sekarang.
+          </p>
+        </div>
+
+        <div class="urgency">
+          <div class="urgency-copy">
+            <strong>⚠️ Jangan terlalu lama menunda.</strong>
+            <span>Timer halaman ini adalah elemen demo dan perlu diganti dengan deadline promo sebenarnya sebelum publish.</span>
+          </div>
+
+          <div class="timer" aria-label="Countdown promo demo">
+            <div class="timer-box">
+              <span id="hours">23</span>
+              <small>JAM</small>
+            </div>
+
+            <div class="timer-box">
+              <span id="minutes">59</span>
+              <small>MENIT</small>
+            </div>
+
+            <div class="timer-box">
+              <span id="seconds">59</span>
+              <small>DETIK</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="pricing-grid">
+
+          <article class="pricing-card">
+            <div class="package-name">Paket</div>
+            <h3>Starter</h3>
+
+            <div class="price">
+              <strong>Rp79.000</strong>
+              <span>sekali bayar</span>
+            </div>
+
+            <ul class="benefits">
+              <li>Akses panduan ReviewCuan A–Z</li>
+              <li>Akses informasi supplier kartu NFC/QR</li>
+              <li>Harga supplier Rp15.000/pcs</li>
+              <li>Script closing untuk menawarkan ke bisnis lokal</li>
+            </ul>
+
+            <button class="btn btn-secondary" type="button" data-package="starter">
+              Ambil Paket Starter
+            </button>
+          </article>
+
+          <article class="pricing-card founder">
+            <span class="popular">Pilihan Founder</span>
+
+            <div class="package-name">Paket</div>
+            <h3>Founder</h3>
+
+            <div class="price">
+              <strong>Rp149.000</strong>
+              <span>sekali bayar</span>
+            </div>
+
+            <ul class="benefits">
+              <li>Akses panduan ReviewCuan A–Z</li>
+              <li>Akses informasi supplier kartu NFC/QR</li>
+              <li>Harga supplier Rp15.000/pcs</li>
+              <li>Script closing untuk menawarkan ke bisnis lokal</li>
+            </ul>
+
+            <button class="btn btn-primary" type="button" data-package="founder">
+              ⚠️ Amankan Akses Founder
+            </button>
+
+            <span class="strikethrough-note">
+              Menunggu sampai peluangnya lewat
+            </span>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SOCIAL PROOF -->
+    <section class="proof">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="section-label">Social Proof</span>
+
+          <h2>
+            Bukti yang paling kuat adalah
+            percakapan nyata.
+          </h2>
+
+          <p>
+            Gunakan screenshot chat pelanggan asli di bagian ini sebelum
+            halaman dipublikasikan. Template berikut disiapkan agar layout
+            tetap terlihat seperti sales page nyata tanpa mengarang testimoni.
+          </p>
+        </div>
+
+        <div class="proof-grid">
+
+          <article class="testimonial">
+            <span class="testimonial-label">CONTOH LAYOUT TESTIMONI</span>
+
+            <div class="chat">
+              <div class="chat-bubble">
+                [Masukkan chat asli pelanggan tentang pengalaman closing pertama]
+              </div>
+
+              <div class="chat-bubble">
+                [Masukkan balasan pelanggan asli di sini]
+              </div>
+            </div>
+
+            <p class="testimonial-footnote">
+              Ganti dengan screenshot/chat asli sebelum publish.
+            </p>
+          </article>
+
+          <article class="testimonial">
+            <span class="testimonial-label">CONTOH LAYOUT TESTIMONI</span>
+
+            <div class="chat">
+              <div class="chat-bubble">
+                [Masukkan chat asli pelanggan tentang hasil penawaran]
+              </div>
+
+              <div class="chat-bubble">
+                [Masukkan balasan pelanggan asli di sini]
+              </div>
+            </div>
+
+            <p class="testimonial-footnote">
+              Ganti dengan screenshot/chat asli sebelum publish.
+            </p>
+          </article>
+
+          <article class="testimonial">
+            <span class="testimonial-label">CONTOH LAYOUT TESTIMONI</span>
+
+            <div class="chat">
+              <div class="chat-bubble">
+                [Masukkan chat asli pelanggan tentang proses mendapatkan customer]
+              </div>
+
+              <div class="chat-bubble">
+                [Masukkan balasan pelanggan asli di sini]
+              </div>
+            </div>
+
+            <p class="testimonial-footnote">
+              Ganti dengan screenshot/chat asli sebelum publish.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CREDIBILITY -->
+    <section class="credibility">
+      <div class="container">
+
+        <div class="credibility-box">
+
+          <div>
+            <span class="section-label">Prinsip ReviewCuan</span>
+
+            <h2>
+              Bukan tentang kelihatan
+              paling canggih.
+            </h2>
+
+            <p>
+              ReviewCuan dibuat dengan pendekatan sederhana:
+              temukan masalah yang sudah dirasakan bisnis lokal,
+              tawarkan solusi yang mudah dipahami, lalu ulangi proses
+              yang berhasil.
+            </p>
+          </div>
+
+          <div class="principles">
+            <div class="principle">Produk sederhana → lebih gampang dijelaskan</div>
+            <div class="principle">Masalah nyata → lebih gampang ditawarkan</div>
+            <div class="principle">Script jelas → percakapan lebih terarah</div>
+            <div class="principle">Closing → ulangi → scale</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq" id="faq">
+      <div class="container">
+
+        <div class="section-heading">
+          <span class="section-label">FAQ</span>
+
+          <h2>
+            Masih ragu?
+            Ini pertanyaan yang paling sering muncul.
+          </h2>
+        </div>
+
+        <div class="faq-list">
+
+          <details>
+            <summary>Apakah butuh modal besar?</summary>
+            <div class="faq-answer">
+              Tidak perlu modal besar untuk memulai konsep ini. Harga kartu
+              dari supplier yang diberikan dalam ReviewCuan adalah Rp15.000/pcs.
+              Kamu bisa memulai dari jumlah kecil dan menyesuaikan pembelian
+              dengan kebutuhan calon pelanggan.
+            </div>
+          </details>
+
+          <details>
+            <summary>Apakah bisa untuk pemula?</summary>
+            <div class="faq-answer">
+              Bisa. ReviewCuan dirancang sebagai panduan dari nol, termasuk
+              alur pendekatan dan script closing. Kamu tetap perlu belajar
+              menawarkan produk, berbicara dengan pemilik bisnis, dan melakukan
+              follow-up.
+            </div>
+          </details>
+
+          <details>
+            <summary>Bisnis apa yang bisa saya datangi?</summary>
+            <div class="faq-answer">
+              Kamu bisa mulai dari bisnis lokal seperti resto, salon,
+              barbershop, kafe, dan bisnis lain yang membutuhkan lebih banyak
+              kepercayaan dari calon pelanggan melalui review Google.
+            </div>
+          </details>
+
+          <details>
+            <summary>Berapa harga yang bisa saya tawarkan ke bisnis?</summary>
+            <div class="faq-answer">
+              Dalam contoh alur ReviewCuan, kartu ditawarkan sekitar
+              Rp50.000–Rp165.000 per kartu tergantung bisnis dan kesepakatan.
+              Harga aktual tetap perlu kamu sesuaikan dengan value, jumlah
+              kartu, dan kondisi pelanggan.
+            </div>
+          </details>
+
+          <details>
+            <summary>Apakah ini menjamin saya pasti dapat closing?</summary>
+            <div class="faq-answer">
+              Tidak. Panduan dan script membantu kamu memulai dengan struktur
+              yang lebih jelas, tetapi hasil tetap bergantung pada cara kamu
+              menawarkan, jumlah bisnis yang kamu datangi, kemampuan komunikasi,
+              follow-up, dan kondisi pasar.
+            </div>
+          </details>
+
+          <details>
+            <summary>Kenapa harus mulai sekarang?</summary>
+            <div class="faq-answer">
+              Karena peluang yang sederhana sering kali terlihat menarik
+              setelah banyak orang sudah menjalankannya. Kalau memang ingin
+              mencoba, lebih baik mulai dengan langkah kecil dan menguji
+              penawaran ke bisnis lokal daripada terus menunggu waktu yang
+              dianggap sempurna.
+            </div>
+          </details>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="final-cta">
+      <div class="container">
+
+        <h2>
+          Jangan cuma lihat peluangnya.
+          Coba jalankan.
+        </h2>
+
+        <p>
+          Dapatkan akses ReviewCuan, pelajari alurnya, pesan kartu dari
+          supplier, lalu mulai tawarkan ke bisnis lokal pertama kamu.
+        </p>
+
+        <button class="btn btn-primary" type="button" data-package="founder">
+          🚀 Amankan Akses ReviewCuan Sekarang
+        </button>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- STICKY CTA -->
+  <div class="sticky-cta" role="region" aria-label="Akses ReviewCuan">
+    <div class="sticky-cta-inner">
+
+      <div class="sticky-price">
+        <small>Mulai dari</small>
+        <strong>Rp79.000</strong>
+      </div>
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        data-package="founder"
+      >
+        Amankan Akses
+      </button>
+
+    </div>
+  </div>
+
+  <!-- CHECKOUT NOTICE -->
+  <div
+    class="checkout-notice"
+    id="checkoutNotice"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="noticeTitle"
+    aria-describedby="noticeDescription"
+  >
+    <div class="notice-card">
+
+      <h3 id="noticeTitle">Paket dipilih.</h3>
+
+      <p id="noticeDescription">
+        Link checkout belum dimasukkan ke HTML ini. Hubungkan tombol CTA
+        ke checkout Scalev/Lynk.id/WhatsApp sebelum halaman dipublikasikan.
+      </p>
+
+      <button class="btn btn-primary" type="button" id="closeNotice">
+        Kembali ke halaman
+      </button>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="brand" style="justify-content:center; margin-bottom:8px;">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>ReviewCuan</span>
+      </div>
+
+      <div>
+        Produk digital untuk membantu kamu mempelajari dan menjalankan
+        konsep penawaran kartu NFC/QR Google Review ke bisnis lokal.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /*
+       * REVIEWCUAN — SCALEV HTML MODE
+       *
+       * Tidak ada endpoint private, API key, token, atau credential
+       * di dalam halaman ini.
+       *
+       * Sebelum publish:
+       * 1. Hubungkan CTA ke checkout yang sebenarnya.
+       * 2. Ganti contoh testimoni dengan bukti/chat asli.
+       * 3. Ganti timer demo dengan deadline promo yang benar jika memang ada.
+       */
+
+      var CONFIG = {
+        checkoutUrls: {
+          starter: "",
+          founder: ""
+        },
+
+        /*
+         * Timer ini sengaja dibuat sebagai demo.
+         * Set ke false jika tidak ingin menampilkan countdown.
+         */
+        demoTimerEnabled: true,
+
+        demoTimerDurationMs: 24 * 60 * 60 * 1000,
+
+        timerStorageKey: "reviewcuan_demo_timer_v1"
+      };
+
+      var scalevData = {
+        page: {},
+        store: null
+      };
+
+      try {
+        if (
+          window.Scalev &&
+          window.Scalev.data &&
+          typeof window.Scalev.data.get === "function"
+        ) {
+          scalevData = window.Scalev.data.get() || scalevData;
+        }
+      } catch (error) {
+        scalevData = {
+          page: {},
+          store: null
+        };
+      }
+
+      var page = scalevData.page || {};
+
+      function getProvider() {
+        var referrer = document.referrer || "";
+
+        if (/tiktok/i.test(referrer)) {
+          return "tiktok";
+        }
+
+        if (/facebook|instagram/i.test(referrer)) {
+          return "facebook";
+        }
+
+        if (/kwai/i.test(referrer)) {
+          return "kwai";
+        }
+
+        return "tiktok";
+      }
+
+      function trackEvent(eventName, payload) {
+        try {
+          if (
+            window.Scalev &&
+            window.Scalev.analytics &&
+            typeof window.Scalev.analytics.track === "function"
+          ) {
+            var eventPayload = Object.assign(
+              {
+                page_id: page.uniqueId || page.id || null,
+                page_username: page.username || null
+              },
+              payload || {}
+            );
+
+            window.Scalev.analytics.track(
+              getProvider(),
+              Object.assign(
+                {
+                  event: eventName
+                },
+                eventPayload
+              )
+            );
+          }
+        } catch (error) {
+          /*
+           * Analytics failure tidak boleh menghentikan halaman.
+           */
+        }
+      }
+
+      var notice = document.getElementById("checkoutNotice");
+      var closeNotice = document.getElementById("closeNotice");
+      var noticeDescription = document.getElementById("noticeDescription");
+
+      function packageLabel(packageName) {
+        if (packageName === "starter") {
+          return "Paket Starter — Rp79.000";
+        }
+
+        return "Paket Founder — Rp149.000";
+      }
+
+      function openCheckout(packageName) {
+        trackEvent("cta_click", {
+          package: packageName,
+          package_label: packageLabel(packageName)
+        });
+
+        var checkoutUrl = CONFIG.checkoutUrls[packageName];
+
+        /*
+         * Jika user sudah memasukkan URL checkout,
+         * tombol akan langsung menuju URL tersebut.
+         */
+        if (
+          typeof checkoutUrl === "string" &&
+          checkoutUrl.trim() !== ""
+        ) {
+          window.location.href = checkoutUrl;
+          return;
+        }
+
+        /*
+         * Fallback aman ketika checkout belum dikonfigurasi.
+         */
+        if (notice && noticeDescription) {
+          noticeDescription.textContent =
+            "Kamu memilih " +
+            packageLabel(packageName) +
+            ". Link checkout belum dimasukkan ke HTML ini. Hubungkan tombol CTA ke checkout Scalev, Lynk.id, WhatsApp Admin, atau payment page yang kamu gunakan sebelum halaman dipublikasikan.";
+
+          notice.classList.add("show");
+
+          if (closeNotice) {
+            closeNotice.focus();
+          }
+        }
+      }
+
+      var packageButtons = document.querySelectorAll("[data-package]");
+
+      packageButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          var packageName = button.getAttribute("data-package");
+
+          if (packageName) {
+            openCheckout(packageName);
+          }
+        });
+      });
+
+      if (closeNotice && notice) {
+        closeNotice.addEventListener("click", function () {
+          notice.classList.remove("show");
+        });
+      }
+
+      if (notice) {
+        notice.addEventListener("click", function (event) {
+          if (event.target === notice) {
+            notice.classList.remove("show");
+          }
+        });
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (
+          event.key === "Escape" &&
+          notice &&
+          notice.classList.contains("show")
+        ) {
+          notice.classList.remove("show");
+        }
+      });
+
+      /*
+       * Countdown demo.
+       * Menggunakan localStorage agar timer tidak reset setiap refresh.
+       */
+      var hoursEl = document.getElementById("hours");
+      var minutesEl = document.getElementById("minutes");
+      var secondsEl = document.getElementById("seconds");
+
+      function pad(number) {
+        return String(number).padStart(2, "0");
+      }
+
+      function getTimerEnd() {
+        var storedEnd = null;
+
+        try {
+          storedEnd = Number(
+            localStorage.getItem(CONFIG.timerStorageKey)
+          );
+        } catch (error) {
+          storedEnd = null;
+        }
+
+        if (
+          !storedEnd ||
+          !Number.isFinite(storedEnd) ||
+          storedEnd <= Date.now()
+        ) {
+          storedEnd = Date.now() + CONFIG.demoTimerDurationMs;
+
+          try {
+            localStorage.setItem(
+              CONFIG.timerStorageKey,
+              String(storedEnd)
+            );
+          } catch (error) {
+            /*
+             * Timer tetap berjalan walaupun localStorage tidak tersedia.
+             */
+          }
+        }
+
+        return storedEnd;
+      }
+
+      if (
+        CONFIG.demoTimerEnabled &&
+        hoursEl &&
+        minutesEl &&
+        secondsEl
+      ) {
+        var timerEnd = getTimerEnd();
+
+        function updateTimer() {
+          var remaining = Math.max(0, timerEnd - Date.now());
+
+          var totalSeconds = Math.floor(remaining / 1000);
+          var hours = Math.floor(totalSeconds / 3600);
+          var minutes = Math.floor((totalSeconds % 3600) / 60);
+          var seconds = totalSeconds % 60;
+
+          hoursEl.textContent = pad(hours);
+          minutesEl.textContent = pad(minutes);
+          secondsEl.textContent = pad(seconds);
+
+          if (remaining <= 0) {
+            timerEnd = getTimerEnd();
+          }
+        }
+
+        updateTimer();
+        window.setInterval(updateTimer, 1000);
+      }
+
+      /*
+       * Tracking page view secara defensif.
+       */
+      trackEvent("page_view", {
+        page_type: "html_sales_page",
+        product: "ReviewCuan"
+      });
+
+    })();
+  </script>
+
+</body>
+</html>
